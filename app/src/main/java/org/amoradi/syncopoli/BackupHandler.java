@@ -137,14 +137,37 @@ public class BackupHandler implements IBackupHandler {
     }
 
     public int runBackup(BackupItem b) {
+        FileOutputStream logFile;
+
+        try {
+            logFile = mContext.openFileOutput(b.logFileName, Context.MODE_PRIVATE);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         try {
             String rsyncPath = new File(mContext.getFilesDir(), "rsync").getAbsolutePath();
+            logFile.write(("Rsync path: " + rsyncPath + "\n").getBytes());
             String sshPath = new File(mContext.getFilesDir(), "ssh").getAbsolutePath();
+            logFile.write(("SSH path: " + sshPath + "\n").getBytes());
+
+            String[] paths = {rsyncPath, sshPath};
+            for (String filePath : paths) {
+                File f = new File(filePath);
+                if (f.canExecute()) {
+                    logFile.write(("can execute " + filePath).getBytes());
+                } else {
+                    logFile.write(("OH MADNESS! " + filePath + " is not set to be executable. Setting executable now\n").getBytes());
+                    if (f.setExecutable(true, false)) {
+                        logFile.write(("MOAR MADNESS! Cannot set " + filePath + " executable! This is failure waiting to happen").getBytes());
+                    }
+                }
+            }
 
             File f = new File(rsyncPath);
-            FileOutputStream logFile = mContext.openFileOutput(b.logFileName, Context.MODE_PRIVATE);
 
             updateBackupTimestamp(b);
+            logFile.write("Timestamp updated\n".getBytes());
             logFile.write((b.lastUpdate.toString() + " \n\n").getBytes());
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -205,6 +228,7 @@ public class BackupHandler implements IBackupHandler {
              * BUILD PROCESS
              */
 
+            logFile.write("building process\n".getBytes());
             ProcessBuilder pb = new ProcessBuilder(args);
             pb.directory(mContext.getFilesDir());
             //pb.redirectErrorStream(true);
@@ -218,12 +242,14 @@ public class BackupHandler implements IBackupHandler {
              * RUN PROCESS
              */
 
+            logFile.write("starting process\n".getBytes());
             Process process = pb.start();
 
             /*
              * GET STDOUT/STDERR
              */
 
+            logFile.write("done starting process\n".getBytes());
             int read;
             BufferedReader reader;
             char[] buffer = new char[4096];
