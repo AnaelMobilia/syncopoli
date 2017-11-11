@@ -399,7 +399,6 @@ public class BackupActivity extends AppCompatActivity implements IBackupHandler 
             File f = new File(getFilesDir(), filename);
             try {
                 f.setExecutable(true);
-                return;
             } catch (SecurityException e) {
                 Log.e(TAG, "Error setting executable flag: " + e.toString());
             }
