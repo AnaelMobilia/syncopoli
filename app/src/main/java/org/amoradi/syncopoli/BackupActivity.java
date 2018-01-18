@@ -87,6 +87,7 @@ public class BackupActivity extends AppCompatActivity implements IBackupHandler 
         ContentResolver.addPeriodicSync(mAccount, SYNC_AUTHORITY, new Bundle(), freq);
 
         copyExecutables();
+        ensureSSHDir();
 
         mBackupHandler = new BackupHandler(this);
 
@@ -423,5 +424,51 @@ public class BackupActivity extends AppCompatActivity implements IBackupHandler 
             return;
         }
         Log.e(TAG, "ERROR selecting native executables for device's ABI");
+    }
+
+    public int ensureSSHDir() {
+        /* parent directory .ssh */
+        File f = new File(getFilesDir(), ".ssh");
+        if (!f.exists()) {
+            if (!f.mkdirs()) {
+                Log.e("Syncopoli", "Could not create directory " + f.getAbsolutePath());
+                return -1;
+            }
+        }
+
+        if (!f.isDirectory()) {
+            Log.e("Syncopoli", f.getAbsolutePath() + " is not a directory");
+            return -1;
+        }
+
+        if (!f.canWrite()) {
+            Log.e("Syncopoli", f.getAbsolutePath() + " is not writable");
+            return -1;
+        }
+
+        /* child file known_hosts */
+        File f2 = new File(f, "known_hosts");
+        if (!f2.exists()) {
+            try {
+                if (!f2.createNewFile()) {
+                    Log.e("Syncopoli", "Could not create file " + f2.getAbsolutePath());
+                    return -1;
+                }
+            } catch (IOException e) {
+                Log.e("Syncopoli", "Could not create file " + f2.getAbsolutePath() + ": " + e.toString());
+            }
+        }
+
+        if (!f2.isFile()) {
+            Log.e("Syncopoli", f2.getAbsolutePath() + " is not a file");
+            return -1;
+        }
+
+        if (!f2.canWrite()) {
+            Log.e("Syncopoli", "file " + f2.getAbsolutePath() + " is not writable");
+            return -1;
+        }
+
+        return 0;
     }
 }
