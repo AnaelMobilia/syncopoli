@@ -205,4 +205,8 @@ public class SSHManager {
 
         return true;
     }
+
+    public boolean generateSSHKey() {
+        return true;
+    }
 }

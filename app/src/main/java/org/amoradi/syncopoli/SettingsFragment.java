@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,6 +33,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public final static String KEY_VERIFY_HOST = "pref_key_verify_host"; // String
     public final static String KEY_CLEAR_HOSTS = "pref_key_clear_hosts"; // String
     public final static String KEY_AS_ROOT = "pref_key_as_root"; // boolean
+    public final static String KEY_SSH_IMPORT = "pref_key_ssh_key_import"; // generic button
+    public final static String KEY_SSH_GENERATE = "pref_key_ssh_key_generate"; // generic button
     public final static String KEY_VERSION_CODE = "pref_key_version_code";
 
 	private final static int DEFAULT_RSYNC_PORT = 873;
@@ -53,7 +57,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(KEY_WIFI_ONLY) || key.equals(KEY_AS_ROOT)) {
+        if (key.equals(KEY_WIFI_ONLY)
+                || key.equals(KEY_AS_ROOT)
+                || key.equals(KEY_SSH_IMPORT)
+                || key.equals(KEY_SSH_GENERATE)) {
             return;
         }
 
@@ -132,6 +139,23 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                 return true;
             }
         });
+
+        Preference generateKeyButton = findPreference(KEY_SSH_GENERATE);
+        generateKeyButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new GenerateSSHKeyTask(getActivity().getWindow().getContext()).execute();
+                return true;
+            }
+        });
+
+        Preference importKeyButton = findPreference(KEY_SSH_IMPORT);
+        importKeyButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                return true;
+            }
+        });
     }
 
     @Override
@@ -145,11 +169,37 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     private void initializeSummaries() {
         String[] keys = {KEY_SERVER_ADDRESS, KEY_PROTOCOL, KEY_RSYNC_USERNAME,
-		KEY_RSYNC_OPTIONS, KEY_PRIVATE_KEY, KEY_PORT, KEY_FREQUENCY};
+		KEY_RSYNC_OPTIONS, KEY_PRIVATE_KEY, KEY_PORT, KEY_FREQUENCY, KEY_SSH_GENERATE, KEY_SSH_IMPORT};
         SharedPreferences sp = getPreferenceScreen().getSharedPreferences();
 
         for (String key : keys) {
             onSharedPreferenceChanged(sp, key);
+        }
+    }
+
+    private class GenerateSSHKeyTask extends AsyncTask<Void, Void, Boolean> {
+        private Context mContext;
+        private SSHManager sshman;
+
+        GenerateSSHKeyTask(Context ctx) {
+            mContext = ctx;
+            sshman = new SSHManager(mContext);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            return sshman.generateSSHKey();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                Log.i(TAG, "SSH key generated successfully");
+                Toast.makeText(mContext, "SSH key generated successfully", Toast.LENGTH_LONG).show();
+            } else {
+                Log.e(TAG, "SSH key generation failed");
+                Toast.makeText(mContext, "Failed to generate ssh key", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

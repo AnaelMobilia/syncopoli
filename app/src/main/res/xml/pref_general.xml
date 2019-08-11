@@ -49,18 +49,16 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pref_category_sync_backup"
-        android:key="pref_key_sync_backup">
+        android:title="@string/pref_category_auth"
+        android:key="pref_key_auth">
 
-        <EditTextPreference
-            android:capitalize="none"
-            android:defaultValue="-vHrlt --no-perms"
-            android:inputType="text"
-            android:key="pref_key_options"
-            android:maxLines="1"
-            android:selectAllOnFocus="false"
-            android:singleLine="true"
-            android:title="@string/pref_title_options" />
+        <Preference
+            android:title="@string/pref_title_ssh_key_import"
+            android:key="pref_key_ssh_key_import" />
+
+        <Preference
+            android:title="@string/pref_title_ssh_key_generate"
+            android:key="pref_key_ssh_key_generate" />
 
         <EditTextPreference
             android:defaultValue=""
@@ -74,20 +72,36 @@
         <EditTextPreference
             android:defaultValue=""
             android:inputType="textPassword"
+            android:key="pref_key_ssh_password"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_ssh_password" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:inputType="textPassword"
             android:key="pref_key_rsync_password"
             android:maxLines="1"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/pref_title_rsync_password" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_category_sync_backup"
+        android:key="pref_key_sync_backup">
+
         <EditTextPreference
-            android:defaultValue=""
-            android:inputType="textPassword"
-            android:key="pref_key_ssh_password"
+            android:capitalize="none"
+            android:defaultValue="-vHrlt --no-perms"
+            android:inputType="text"
+            android:key="pref_key_options"
             android:maxLines="1"
-            android:selectAllOnFocus="true"
+            android:selectAllOnFocus="false"
             android:singleLine="true"
-            android:title="@string/pref_title_ssh_password" />
+            android:title="@string/pref_title_options" />
 
         <EditTextPreference
             android:defaultValue="8"
