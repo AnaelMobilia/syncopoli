@@ -52,6 +52,14 @@
         android:title="@string/pref_category_auth"
         android:key="pref_key_auth">
 
+        <EditTextPreference
+            android:defaultValue=""
+            android:inputType="textPassword"
+            android:key="pref_key_rsync_password"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_rsync_password" />
         <Preference
             android:title="@string/pref_title_ssh_key_import"
             android:key="pref_key_ssh_key_import" />
@@ -77,15 +85,6 @@
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/pref_title_ssh_password" />
-
-        <EditTextPreference
-            android:defaultValue=""
-            android:inputType="textPassword"
-            android:key="pref_key_rsync_password"
-            android:maxLines="1"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/pref_title_rsync_password" />
 
     </PreferenceCategory>
 
